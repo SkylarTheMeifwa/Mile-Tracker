@@ -477,9 +477,40 @@ function registerServiceWorker() {
   }
 }
 
+function isStandalonePwa() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+function enforcePortraitInPwa() {
+  if (!isStandalonePwa()) {
+    return;
+  }
+
+  const overlay = document.createElement("aside");
+  overlay.className = "orientation-lock-overlay";
+  overlay.setAttribute("aria-live", "polite");
+  overlay.innerHTML = `
+    <div>
+      <h2>Rotate to Portrait</h2>
+      <p>This app works in portrait mode only. Turn your device upright to continue.</p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const syncOrientation = () => {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    document.body.classList.toggle("orientation-locked", isLandscape);
+  };
+
+  syncOrientation();
+  window.addEventListener("resize", syncOrientation);
+  window.addEventListener("orientationchange", syncOrientation);
+}
+
 setActiveNav();
 renderHome();
 bindEntriesPage();
 renderSummaryPage();
 bindSettingsPage();
 registerServiceWorker();
+enforcePortraitInPwa();

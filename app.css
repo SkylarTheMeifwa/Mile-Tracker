@@ -23,6 +23,39 @@ body {
   min-height: 100vh;
 }
 
+body.orientation-locked {
+  overflow: hidden;
+}
+
+body.orientation-locked > :not(.orientation-lock-overlay) {
+  visibility: hidden;
+}
+
+.orientation-lock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  place-items: center;
+  padding: 1.5rem;
+  text-align: center;
+  color: #ffffff;
+  background: linear-gradient(155deg, #174270, #0f766e);
+}
+
+body.orientation-locked .orientation-lock-overlay {
+  display: grid;
+}
+
+.orientation-lock-overlay h2 {
+  margin: 0 0 0.5rem;
+}
+
+.orientation-lock-overlay p {
+  margin: 0;
+  max-width: 24rem;
+}
+
 .topbar {
   position: sticky;
   top: 0;
