@@ -4,6 +4,7 @@
   "description": "Track yearly personal and business mileage for two drivers.",
   "start_url": "index.html",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#f6efe6",
   "theme_color": "#1f3a5f",
   "icons": [
