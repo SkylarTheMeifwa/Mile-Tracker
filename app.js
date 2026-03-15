@@ -478,11 +478,28 @@ function registerServiceWorker() {
 }
 
 function isStandalonePwa() {
-  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.matchMedia("(display-mode: fullscreen)").matches ||
+    window.matchMedia("(display-mode: minimal-ui)").matches ||
+    window.navigator.standalone === true ||
+    document.referrer.startsWith("android-app://")
+  );
+}
+
+function shouldApplyPortraitGuard() {
+  if (isStandalonePwa()) {
+    return true;
+  }
+
+  // Some mobile browsers misreport PWA display mode; apply guard for touch-first phone/tablet viewports.
+  const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
+  const isMobileViewport = window.matchMedia("(max-width: 1024px)").matches;
+  return isTouchDevice && isMobileViewport;
 }
 
 function enforcePortraitInPwa() {
-  if (!isStandalonePwa()) {
+  if (!shouldApplyPortraitGuard()) {
     return;
   }
 
