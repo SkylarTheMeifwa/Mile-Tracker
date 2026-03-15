@@ -172,11 +172,23 @@ textarea:focus {
   text-decoration: none;
 }
 
+.button.button-secondary {
+  background: #d7e4f3;
+  color: var(--navy);
+}
+
 .button.danger {
   background: #e9785b;
   color: #fff;
   padding: 0.4rem 0.7rem;
   font-weight: 700;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .status {

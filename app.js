@@ -147,6 +147,42 @@ function saveData(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+function downloadBackup(data) {
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    version: 1,
+    data: normalizeData(data)
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0, 10);
+
+  link.href = url;
+  link.download = `mile-tracker-backup-${stamp}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function readJsonFile(file) {
+  const text = await file.text();
+  return JSON.parse(text);
+}
+
+function extractImportData(payload) {
+  const candidate = payload && typeof payload === "object" && "data" in payload
+    ? payload.data
+    : payload;
+
+  if (!candidate || typeof candidate !== "object") {
+    throw new Error("Invalid backup file.");
+  }
+
+  return normalizeData(candidate);
+}
+
 function asNumber(value) {
   const num = Number(value);
   return Number.isFinite(num) && num >= 0 ? num : 0;
@@ -432,17 +468,25 @@ function bindSettingsPage() {
   const form = document.getElementById("settingsForm");
   if (!form) return;
 
-  const data = loadData();
+  let data = loadData();
   const driverOneName = document.getElementById("driverOneName");
   const driverTwoName = document.getElementById("driverTwoName");
   const taxRate = document.getElementById("taxRate");
   const summaryYear = document.getElementById("summaryYear");
   const status = document.getElementById("settingsStatus");
+  const exportButton = document.getElementById("exportDataButton");
+  const importButton = document.getElementById("importDataButton");
+  const importInput = document.getElementById("importDataInput");
+  const importExportStatus = document.getElementById("importExportStatus");
 
-  driverOneName.value = data.drivers[0].name;
-  driverTwoName.value = data.drivers[1].name;
-  taxRate.value = data.taxRate.toFixed(3);
-  summaryYear.value = String(data.summaryYear);
+  function syncSettingsForm() {
+    driverOneName.value = data.drivers[0].name;
+    driverTwoName.value = data.drivers[1].name;
+    taxRate.value = data.taxRate.toFixed(3);
+    summaryYear.value = String(data.summaryYear);
+  }
+
+  syncSettingsForm();
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -456,6 +500,40 @@ function bindSettingsPage() {
 
     saveData(data);
     status.textContent = "Settings saved. Visit Entries and Summary for updated year totals.";
+  });
+
+  if (!exportButton || !importButton || !importInput || !importExportStatus) {
+    return;
+  }
+
+  exportButton.addEventListener("click", () => {
+    downloadBackup(data);
+    importExportStatus.textContent = "Backup exported.";
+  });
+
+  importButton.addEventListener("click", () => {
+    importInput.click();
+  });
+
+  importInput.addEventListener("change", async () => {
+    const [file] = importInput.files || [];
+    if (!file) {
+      return;
+    }
+
+    try {
+      const payload = await readJsonFile(file);
+      const importedData = extractImportData(payload);
+      saveData(importedData);
+      data = importedData;
+      syncSettingsForm();
+      importExportStatus.textContent = "Backup imported successfully.";
+      status.textContent = "Settings updated from imported backup.";
+    } catch {
+      importExportStatus.textContent = "Import failed. Choose a valid Mile Tracker backup JSON file.";
+    } finally {
+      importInput.value = "";
+    }
   });
 }
 

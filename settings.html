@@ -48,6 +48,17 @@
       </form>
       <p id="settingsStatus" class="status" aria-live="polite"></p>
     </section>
+
+    <section class="panel">
+      <h2>Backup Data</h2>
+      <p class="muted">Export your saved mileage data to a JSON backup, or import a backup to restore it on this device.</p>
+      <div class="action-row">
+        <button id="exportDataButton" class="button" type="button">Export Data</button>
+        <button id="importDataButton" class="button button-secondary" type="button">Import Data</button>
+      </div>
+      <input id="importDataInput" type="file" accept="application/json" hidden>
+      <p id="importExportStatus" class="status" aria-live="polite"></p>
+    </section>
   </main>
 
   <script src="app.js"></script>
