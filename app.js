@@ -486,6 +486,18 @@ function enforcePortraitInPwa() {
     return;
   }
 
+  const tryLockPortrait = async () => {
+    if (!screen.orientation || typeof screen.orientation.lock !== "function") {
+      return;
+    }
+
+    try {
+      await screen.orientation.lock("portrait");
+    } catch {
+      // Some browsers require fullscreen or a user gesture; fallback overlay handles it.
+    }
+  };
+
   const overlay = document.createElement("aside");
   overlay.className = "orientation-lock-overlay";
   overlay.setAttribute("aria-live", "polite");
@@ -502,7 +514,16 @@ function enforcePortraitInPwa() {
     document.body.classList.toggle("orientation-locked", isLandscape);
   };
 
+  tryLockPortrait();
   syncOrientation();
+  window.addEventListener("focus", tryLockPortrait);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      tryLockPortrait();
+      syncOrientation();
+    }
+  });
+  document.addEventListener("click", tryLockPortrait, { passive: true });
   window.addEventListener("resize", syncOrientation);
   window.addEventListener("orientationchange", syncOrientation);
 }
