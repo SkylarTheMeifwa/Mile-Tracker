@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1f3a5f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="app.css">
+  <title>Mile Tracker | Settings</title>
+</head>
+<body data-page="settings">
+  <header class="topbar">
+    <div class="brand">Mile Tracker</div>
+    <nav class="menu" aria-label="Primary">
+      <a href="index.html" data-nav="home">Home</a>
+      <a href="entries.html" data-nav="entries">Entries</a>
+      <a href="summary.html" data-nav="summary">Summary</a>
+      <a href="settings.html" data-nav="settings">Settings</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Settings</h1>
+
+    <section class="panel">
+      <form id="settingsForm" class="form-grid">
+        <label>
+          Driver 1 Name
+          <input id="driverOneName" type="text" maxlength="40" required>
+        </label>
+
+        <label>
+          Driver 2 Name
+          <input id="driverTwoName" type="text" maxlength="40" required>
+        </label>
+
+        <label>
+          Tax Credit Rate (USD per business mile)
+          <input id="taxRate" type="number" min="0" step="0.001" required>
+        </label>
+
+        <label>
+          Summary Year
+          <input id="summaryYear" type="number" min="2000" max="2100" step="1" required>
+        </label>
+
+        <button class="button" type="submit">Save Settings</button>
+      </form>
+      <p id="settingsStatus" class="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

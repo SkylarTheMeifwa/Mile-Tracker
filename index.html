@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1f3a5f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="app.css">
+  <title>Mile Tracker | Home</title>
+</head>
+<body data-page="home">
+  <header class="topbar">
+    <div class="brand">Mile Tracker</div>
+    <nav class="menu" aria-label="Primary">
+      <a href="index.html" data-nav="home">Home</a>
+      <a href="entries.html" data-nav="entries">Entries</a>
+      <a href="summary.html" data-nav="summary">Summary</a>
+      <a href="settings.html" data-nav="settings">Settings</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Yearly Mileage Tracker</h1>
+      <p>Track personal and business miles for two drivers and estimate tax credit at year end.</p>
+      <a class="button" href="entries.html">Add Miles</a>
+    </section>
+
+    <section class="card-grid" id="homeTotals" aria-live="polite"></section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1f3a5f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="app.css">
+  <title>Mile Tracker | Summary</title>
+</head>
+<body data-page="summary">
+  <header class="topbar">
+    <div class="brand">Mile Tracker</div>
+    <nav class="menu" aria-label="Primary">
+      <a href="index.html" data-nav="home">Home</a>
+      <a href="entries.html" data-nav="entries">Entries</a>
+      <a href="summary.html" data-nav="summary">Summary</a>
+      <a href="settings.html" data-nav="settings">Settings</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Year-End Summary</h1>
+    <p class="muted">Summary of January start, December end, yearly totals, and estimated tax credit.</p>
+
+    <section class="card-grid" id="summaryCards" aria-live="polite"></section>
+
+    <section class="panel">
+      <h2>Combined Total Tax Credit</h2>
+      <p class="big-number" id="combinedTaxCredit">$0.00</p>
+      <p class="muted" id="taxRateHint"></p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

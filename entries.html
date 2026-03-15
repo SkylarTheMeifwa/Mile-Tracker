@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1f3a5f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="app.css">
+  <title>Mile Tracker | Entries</title>
+</head>
+<body data-page="entries">
+  <header class="topbar">
+    <div class="brand">Mile Tracker</div>
+    <nav class="menu" aria-label="Primary">
+      <a href="index.html" data-nav="home">Home</a>
+      <a href="entries.html" data-nav="entries">Entries</a>
+      <a href="summary.html" data-nav="summary">Summary</a>
+      <a href="settings.html" data-nav="settings">Settings</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Daily Entries</h1>
+    <p class="muted">Enter each day for each driver. Personal miles are auto-calculated from odometer difference minus business miles.</p>
+
+    <section class="panel">
+      <form id="entryForm" class="form-grid">
+        <label>
+          Driver
+          <select id="driverSelect" required></select>
+        </label>
+
+        <label>
+          Date
+          <input id="entryDate" type="date" required>
+        </label>
+
+        <label>
+          Starting Odometer Miles
+          <input id="startMiles" type="number" min="0" step="0.1" placeholder="e.g. 12400">
+        </label>
+
+        <label>
+          Ending Odometer Miles
+          <input id="endMiles" type="number" min="0" step="0.1" placeholder="e.g. 19875">
+        </label>
+
+        <label>
+          Business Miles
+          <input id="businessMiles" type="number" min="0" step="0.1" required>
+        </label>
+
+        <p class="muted full-row">Personal miles are calculated automatically as (Ending - Starting - Business).</p>
+
+        <label class="full-row">
+          Notes (optional)
+          <textarea id="notes" rows="2" placeholder="Optional note for this day"></textarea>
+        </label>
+
+        <button class="button" type="submit">Save Entry</button>
+      </form>
+      <p id="entryStatus" class="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Driver Daily Overview</h2>
+      <p id="overviewDriverLabel" class="muted"></p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Personal</th>
+              <th>Business</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="entryTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
