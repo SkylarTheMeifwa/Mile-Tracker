@@ -477,78 +477,9 @@ function registerServiceWorker() {
   }
 }
 
-function isStandalonePwa() {
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.matchMedia("(display-mode: fullscreen)").matches ||
-    window.matchMedia("(display-mode: minimal-ui)").matches ||
-    window.navigator.standalone === true ||
-    document.referrer.startsWith("android-app://")
-  );
-}
-
-function shouldApplyPortraitGuard() {
-  if (isStandalonePwa()) {
-    return true;
-  }
-
-  // Some mobile browsers misreport PWA display mode; apply guard for touch-first phone/tablet viewports.
-  const isTouchDevice = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
-  const isMobileViewport = window.matchMedia("(max-width: 1024px)").matches;
-  return isTouchDevice && isMobileViewport;
-}
-
-function enforcePortraitInPwa() {
-  if (!shouldApplyPortraitGuard()) {
-    return;
-  }
-
-  const tryLockPortrait = async () => {
-    if (!screen.orientation || typeof screen.orientation.lock !== "function") {
-      return;
-    }
-
-    try {
-      await screen.orientation.lock("portrait");
-    } catch {
-      // Some browsers require fullscreen or a user gesture; fallback overlay handles it.
-    }
-  };
-
-  const overlay = document.createElement("aside");
-  overlay.className = "orientation-lock-overlay";
-  overlay.setAttribute("aria-live", "polite");
-  overlay.innerHTML = `
-    <div>
-      <h2>Rotate to Portrait</h2>
-      <p>This app works in portrait mode only. Turn your device upright to continue.</p>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  const syncOrientation = () => {
-    const isLandscape = window.innerWidth > window.innerHeight;
-    document.body.classList.toggle("orientation-locked", isLandscape);
-  };
-
-  tryLockPortrait();
-  syncOrientation();
-  window.addEventListener("focus", tryLockPortrait);
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) {
-      tryLockPortrait();
-      syncOrientation();
-    }
-  });
-  document.addEventListener("click", tryLockPortrait, { passive: true });
-  window.addEventListener("resize", syncOrientation);
-  window.addEventListener("orientationchange", syncOrientation);
-}
-
 setActiveNav();
 renderHome();
 bindEntriesPage();
 renderSummaryPage();
 bindSettingsPage();
 registerServiceWorker();
-enforcePortraitInPwa();
