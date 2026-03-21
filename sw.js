@@ -1,4 +1,4 @@
-const CACHE_NAME = "mile-tracker-v3";
+const CACHE_NAME = "mile-tracker-v4";
 const APP_SHELL = [
   "./",
   "index.html",
@@ -8,7 +8,7 @@ const APP_SHELL = [
   "app.css",
   "app.js",
   "manifest.webmanifest",
-  "assets/icon.svg"
+  "assets/map.png"
 ];
 
 self.addEventListener("install", (event) => {
