@@ -253,6 +253,32 @@ function getYearEntries(data, driverId, year) {
     .sort((a, b) => a[0].localeCompare(b[0]));
 }
 
+function getLatestSharedEndMiles(data, upToDateKey) {
+  let latestDate = "";
+  let latestEndMiles = null;
+
+  ["d1", "d2"].forEach((driverId) => {
+    const entries = data.entries?.[driverId] || {};
+    Object.entries(entries).forEach(([dateKey, row]) => {
+      const endMiles = asNullableNumber(row?.endMiles);
+      if (endMiles === null) {
+        return;
+      }
+
+      if (dateKey > upToDateKey) {
+        return;
+      }
+
+      if (dateKey >= latestDate) {
+        latestDate = dateKey;
+        latestEndMiles = endMiles;
+      }
+    });
+  });
+
+  return latestEndMiles;
+}
+
 function setActiveNav() {
   const page = document.body.dataset.page;
   document.querySelectorAll(".menu a").forEach((link) => {
@@ -387,8 +413,11 @@ function bindEntriesPage() {
   function loadSelectedEntry() {
     const driverId = driverSelect.value;
     const dateKey = entryDate.value;
+    const sharedStartMiles = isIsoDate(dateKey)
+      ? getLatestSharedEndMiles(data, dateKey)
+      : null;
     const row = data.entries[driverId][dateKey] || {
-      startMiles: null,
+      startMiles: sharedStartMiles,
       endMiles: null,
       personalMiles: 0,
       businessMiles: 0,
@@ -416,8 +445,11 @@ function bindEntriesPage() {
       return;
     }
 
+    const inferredStartMiles = getLatestSharedEndMiles(data, dateKey);
+    const resolvedStartMiles = asNullableNumber(startMiles.value) ?? inferredStartMiles;
+
     data.entries[driverId][dateKey] = {
-      startMiles: asNullableNumber(startMiles.value),
+      startMiles: resolvedStartMiles,
       endMiles: asNullableNumber(endMiles.value),
       businessMiles: asNumber(businessMiles.value),
       personalMiles: 0,
