@@ -210,8 +210,19 @@ textarea:focus {
 }
 
 .checkbox-row input[type="checkbox"] {
+  appearance: auto;
+  -webkit-appearance: checkbox;
+  display: inline-block;
   width: auto;
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   margin: 0;
+  flex: 0 0 auto;
+  vertical-align: middle;
   accent-color: var(--teal);
 }
 
