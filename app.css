@@ -202,6 +202,19 @@ textarea:focus {
   color: var(--muted);
 }
 
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 600;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  accent-color: var(--teal);
+}
+
 .table-wrap {
   overflow-x: auto;
 }

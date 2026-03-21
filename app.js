@@ -4,6 +4,7 @@ function createDefaultData() {
   return {
     taxRate: 0.07,
     summaryYear: new Date().getFullYear(),
+    singleDriverMode: false,
     drivers: [
       { id: "d1", name: "Driver 1" },
       { id: "d2", name: "Driver 2" }
@@ -43,6 +44,7 @@ function normalizeData(data) {
   const normalized = {
     taxRate: Number(data.taxRate) >= 0 ? Number(data.taxRate) : fallback.taxRate,
     summaryYear,
+    singleDriverMode: Boolean(data.singleDriverMode),
     drivers: Array.isArray(data.drivers) && data.drivers.length === 2
       ? data.drivers.map((driver, index) => ({
         id: index === 0 ? "d1" : "d2",
@@ -253,11 +255,16 @@ function getYearEntries(data, driverId, year) {
     .sort((a, b) => a[0].localeCompare(b[0]));
 }
 
+function getActiveDrivers(data) {
+  return data.singleDriverMode ? [data.drivers[0]] : data.drivers;
+}
+
 function getLatestSharedEndMiles(data, upToDateKey) {
   let latestDate = "";
   let latestEndMiles = null;
+  const activeDriverIds = getActiveDrivers(data).map((driver) => driver.id);
 
-  ["d1", "d2"].forEach((driverId) => {
+  activeDriverIds.forEach((driverId) => {
     const entries = data.entries?.[driverId] || {};
     Object.entries(entries).forEach(([dateKey, row]) => {
       const endMiles = asNullableNumber(row?.endMiles);
@@ -333,7 +340,7 @@ function renderHome() {
   if (!target) return;
 
   const data = loadData();
-  const cards = data.drivers.map((driver) => buildDriverSummary(driver, data));
+  const cards = getActiveDrivers(data).map((driver) => buildDriverSummary(driver, data));
 
   target.innerHTML = cards.map((summary) => `
     <article class="card">
@@ -402,8 +409,9 @@ function bindEntriesPage() {
   const businessMiles = document.getElementById("businessMiles");
   const notes = document.getElementById("notes");
   const status = document.getElementById("entryStatus");
+  const activeDrivers = getActiveDrivers(data);
 
-  driverSelect.innerHTML = data.drivers
+  driverSelect.innerHTML = activeDrivers
     .map((driver) => `<option value="${driver.id}">${driver.name}</option>`)
     .join("");
 
@@ -469,7 +477,7 @@ function bindEntriesPage() {
   }
 
   entryDate.value = defaultDate;
-  driverSelect.value = data.drivers[0].id;
+  driverSelect.value = activeDrivers[0].id;
   loadSelectedEntry();
 }
 
@@ -478,7 +486,8 @@ function renderSummaryPage() {
   if (!cardTarget) return;
 
   const data = loadData();
-  const summaries = data.drivers.map((driver) => buildDriverSummary(driver, data));
+  const summaries = getActiveDrivers(data).map((driver) => buildDriverSummary(driver, data));
+  const taxCreditTitle = document.getElementById("taxCreditTitle");
 
   cardTarget.innerHTML = summaries.map((summary) => `
     <article class="card">
@@ -492,6 +501,11 @@ function renderSummaryPage() {
   `).join("");
 
   const combined = summaries.reduce((sum, row) => sum + row.taxCredit, 0);
+  if (taxCreditTitle) {
+    taxCreditTitle.textContent = data.singleDriverMode
+      ? "Total Tax Credit"
+      : "Combined Total Tax Credit";
+  }
   document.getElementById("combinedTaxCredit").textContent = formatCurrency(combined);
   document.getElementById("taxRateHint").textContent = `${data.summaryYear} tax year, rate: ${formatCurrency(data.taxRate)} per business mile.`;
 }
@@ -503,6 +517,7 @@ function bindSettingsPage() {
   let data = loadData();
   const driverOneName = document.getElementById("driverOneName");
   const driverTwoName = document.getElementById("driverTwoName");
+  const singleDriverMode = document.getElementById("singleDriverMode");
   const taxRate = document.getElementById("taxRate");
   const summaryYear = document.getElementById("summaryYear");
   const status = document.getElementById("settingsStatus");
@@ -511,11 +526,24 @@ function bindSettingsPage() {
   const importInput = document.getElementById("importDataInput");
   const importExportStatus = document.getElementById("importExportStatus");
 
+  function syncDriverTwoField() {
+    if (!singleDriverMode) {
+      return;
+    }
+    const isSingle = singleDriverMode.checked;
+    driverTwoName.disabled = isSingle;
+    driverTwoName.closest("label").hidden = isSingle;
+  }
+
   function syncSettingsForm() {
     driverOneName.value = data.drivers[0].name;
     driverTwoName.value = data.drivers[1].name;
+    if (singleDriverMode) {
+      singleDriverMode.checked = Boolean(data.singleDriverMode);
+    }
     taxRate.value = data.taxRate.toFixed(3);
     summaryYear.value = String(data.summaryYear);
+    syncDriverTwoField();
   }
 
   syncSettingsForm();
@@ -525,6 +553,7 @@ function bindSettingsPage() {
 
     data.drivers[0].name = driverOneName.value.trim() || "Driver 1";
     data.drivers[1].name = driverTwoName.value.trim() || "Driver 2";
+    data.singleDriverMode = Boolean(singleDriverMode?.checked);
     data.taxRate = Number(taxRate.value) >= 0 ? Number(taxRate.value) : 0.07;
     data.summaryYear = Number.isInteger(Number(summaryYear.value))
       ? Number(summaryYear.value)
@@ -537,6 +566,8 @@ function bindSettingsPage() {
   if (!exportButton || !importButton || !importInput || !importExportStatus) {
     return;
   }
+
+  singleDriverMode?.addEventListener("change", syncDriverTwoField);
 
   exportButton.addEventListener("click", () => {
     downloadBackup(data);
